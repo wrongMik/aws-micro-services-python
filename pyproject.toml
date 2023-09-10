@@ -1,0 +1,23 @@
+[tool.black]
+line-length = 120
+skip-string-normalization = true
+target-version = ['py310']
+include = '\.pyi?$'
+exclude = '''
+/(
+  | \.terraform
+  | \.eggs
+  | \.git
+  | \.vscode
+  | \.idea
+  | \.serverless
+  | \.pytest_cache
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+ )/
+'''
