@@ -82,7 +82,7 @@ python-format:
 
 python-lint:
 	flake8 --config setup.cfg .
-	mypy .
+	mypy --config setup.cfg .
 
 python-tests:
 	pytest --color=yes -n 8 -rAfv --log-level=WARNING --cov=. --cov-report=xml --show-capture=no

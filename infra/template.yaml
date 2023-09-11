@@ -1,0 +1,14 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: AWS Micro Services Python
+
+Resources:
+  MicroInfra:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: ./micro-infra.yaml
+
+  Layers:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: ./layers.yaml

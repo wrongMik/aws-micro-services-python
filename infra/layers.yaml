@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Lambda Layers
+
+Resources:
+  MicroAws:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: micro-aws
+      ContentUri: ../src/libraries/micro_aws
+      CompatibleRuntimes:
+        - python3.11
+    Metadata:
+      BuildMethod: python3.11
+
+  MicroCore:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: micro-core
+      ContentUri: ../src/libraries/micro_core
+      CompatibleRuntimes:
+        - python3.11
+    Metadata:
+      BuildMethod: python3.11
+
+Outputs:
+  MicroAws:
+    Description: micro-aws layer reference
+    Value: !Ref MicroAws
+
+  MicroCore:
+    Description: micro-core layer reference
+    Value: !Ref MicroCore
