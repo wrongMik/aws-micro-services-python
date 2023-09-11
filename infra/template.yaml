@@ -1,0 +1,158 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: AWS Micro Services Python
+
+Globals:
+  Function:
+    Runtime: python3.11
+    MemorySize: 256
+    Timeout: 30
+    Environment:
+      Variables:
+        LOG_LEVEL: DEBUG
+
+Resources:
+  Infra:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: ./infra.yaml
+
+  Layers:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: ./layers.yaml
+
+  APIGateway:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      Name: micro-api-gateway
+      CorsConfiguration:
+        AllowMethods:
+          - DELETE
+          - GET
+          - HEAD
+          - OPTIONS
+          - PATCH
+          - POST
+          - PUT
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+          - X-Amz-Date
+          - X-Api-Key
+          - X-Amz-Security-Token
+        AllowOrigins:
+          - '*'
+
+  HealthService:
+    Type: AWS::Serverless::Function
+    Properties:
+      Events:
+        HttpApiEvent:
+          Type: HttpApi
+          Properties:
+            Path: /health
+            Method: GET
+            ApiId:
+              Ref: APIGateway
+      FunctionName: health-service
+      Handler: index.handler
+      InlineCode: |
+        import json
+
+
+        def handler(event, context):
+            return {
+                "statusCode": 200,
+                "body": json.dumps({"message": "healthy"}),
+                "headers": {"Content-Type": "application/json"},
+            }
+
+  FastAPIUsersService:
+    Type: AWS::Serverless::Function
+    Properties:
+      Events:
+        HttpApiEvent:
+          Type: HttpApi
+          Properties:
+            Path: /users/{proxy+}
+            Method: any
+            ApiId:
+              Ref: APIGateway
+      FunctionName: fast-api-users-service
+      CodeUri: ../src/services/fast_api_users
+      Handler: fast_api_users.app.handler
+      Layers:
+        - !GetAtt Layers.Outputs.MicroAws
+        - !GetAtt Layers.Outputs.MicroCore
+      Environment:
+        Variables:
+          QUEUE_URL: !GetAtt Infra.Outputs.MicroAwsSQSUrl
+          TABLE_NAME: !GetAtt Infra.Outputs.UsersTable
+      # TODO - Update policy with least privilege
+      Policies:
+        - AdministratorAccess
+
+  SQSUSersProcessor:
+    Type: AWS::Serverless::Function
+    Properties:
+      Events:
+        SQSEvent:
+          Type: SQS
+          Properties:
+            Enabled: True
+            Queue: !GetAtt Infra.Outputs.MicroAwsSQSArn
+      FunctionName: sqs-users-processor
+      CodeUri: ../src/services/sqs_users_processor
+      Handler: sqs_users_processor.app.handler
+      Layers:
+        - !GetAtt Layers.Outputs.MicroAws
+        - !GetAtt Layers.Outputs.MicroCore
+      Environment:
+        Variables:
+          TABLE_NAME: !GetAtt Infra.Outputs.UsersTable
+          BUCKET_NAME: !GetAtt Infra.Outputs.MicroAwsBucket
+      # TODO - Update policy with least privilege
+      Policies:
+        - AdministratorAccess
+
+  PowertoolsHelloWorld:
+    Type: AWS::Serverless::Function
+    Properties:
+      Events:
+        HttpApiEventHello:
+          Type: HttpApi
+          Properties:
+            Path: /power/hello
+            Method: get
+            ApiId:
+              Ref: APIGateway
+        HttpApiEventHelloName:
+          Type: HttpApi
+          Properties:
+            Path: /power/hello/{name}
+            Method: get
+            ApiId:
+              Ref: APIGateway
+      FunctionName: powertools-hello-world
+      CodeUri: ../src/services/powertools_hello_world
+      Handler: powertools_hello_world.app.lambda_handler
+      Tracing: Active
+      Environment:
+        Variables:
+          POWERTOOLS_SERVICE_NAME: powertools-hello-world
+          POWERTOOLS_METRICS_NAMESPACE: powertools
+      # TODO - Update policy with least privilege
+      Policies:
+        - AdministratorAccess
+
+  SQSBatchProcssing:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: ./sqs-batch-processing.yaml
+
+Outputs:
+  ApiUrl:
+    Description: URL of your API endpoint
+    Value:
+      Fn::Sub: 'https://${APIGateway}.execute-api.${AWS::Region}.${AWS::URLSuffix}/'

@@ -1,88 +1,77 @@
-# Developer Readme
+# AWS Micro Services Python
 
-## Setup for development
+## Directory structure
 
-### Python Development Setup
-
-Be sure that you are running on Python Version 3.11, eventually check:
-
-- <https://pypi.org/project/pyenv-win/#installation> for Windows
-- <https://github.com/pyenv/pyenv> for Linux/Mac
-
-make sure that you had install pip
-
-```bash
-pip install --upgrade pip setuptools wheel
+```
+aws-micro-services-python
+├──  .github - GitHub related folder, contains workflow for the CI as well as general settings for GitHub
+│ ├── workflows - <https://docs.github.com/en/actions/using-workflows>
+│ ├── CODEOWNERS - <https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners>
+│ ├── dependabot.yml - <https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file>
+│ └── pull_request_template.md - <https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/creating-a-pull-request-template-for-your-repository>
+├── infra - Folder contanining all the YAML file to deploy the microservices to AWS using AWS SAM
+├── src - Folder containing the source code that will be use by the AWS Lambda runtime
+│ ├── libraries - shared libraries used by all the microservices, deployed as lambda layers
+│ └── services - microservices folder
+├── tests - shared folder for all the tests
+│ ├── requirements.txt - separated requirement.txt file to contains only the dependecies needed when running the tests
+│ └── conftest.py - <https://docs.pytest.org/en/6.2.x/fixture.html#conftest-py-sharing-fixtures-across-multiple-files>
+├── .markdownlint.json - Configuration file for the MarkDown, used by pre-commit
+├── .pre-commit-config.yaml - pre-commit hooks config file
+├── .prettierrc.json - Configuration file for the JSON and YAML, used by pre-commit
+├── Makefile -Make file to ease the local setup, tests, deploy and run CI/CD commands
+├── pyproject.toml - File to store the python configuration for black
+├── README-DEVELOPMENT.md - Readme file to setup local env
+├── README.md - This file
+├── requirements-dev.txt - Python requirements to setup the local development environment
+├── setup.cfg - The ini file, containing option defaults for setup.py commands
+└── setup.py - The setup command
 ```
 
-Create a new python environment and activate it:
+### Architecture Diagram of Users Microservice
 
-1. On Mac/Linux use pyenv-virtualenv (<https://github.com/pyenv/pyenv-virtualenv>)
+![Alt Diagram](./docs/diagram.png?raw=true "Architecture Diagram")
 
-```bash
-pyenv virtualenv 3.11.5 aws-micro-python
-pyenv activate aws-micro-python
-```
+Please you can find the SWAGGER documentation of Users Microservice at <https://piuxg04uu7.execute-api.eu-central-1.amazonaws.com/users/docs>.
 
-2. On Windows using virtualenv and virtualenvwrapper (<https://github.com/davidmarble/virtualenvwrapper-win/>)
+### Deployment on AWS
 
-```bash
-pip install virtualenv
-pip install virtualenvwrapper-win
-cd <project>
-mkvirtualenv -p3.11.5 aws-micro-python
-%USERPROFILE%/Envs/aws-micro-python/Scripts/activate.bat
-```
+Be sure that SAM is installed on your machine, eventually check:
 
-3. Using Python venv
+- <https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/prerequisites.html>
+- <https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html>
+
+**ATTENTION:** Be sure that a default profile is configured in `~/.aws` or change the `infra\samconfig.toml` configuration to meet you environment.
+
+Navigate to the infra folder and run `sam build` and `sam deploy` command
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
+cd infra
+sam build
+sam deploy
 ```
 
-### Install Dependencies
+or use the make command
 
 ```bash
-pip install -r requirements-dev.txt
+make build-deploy
 ```
 
-### Install Pre-commit Hooks
+### Python Folder Structure and Setup
 
-Install pre-commit and register the hooks
+Each subfolder in `src\libraries` or in `src\services` can be interpreted as a separate python module.
+In this way if we decide to move folders around we do not need to change any python code (we still need to change the IaC and the setup for the local virtual environment).
 
-```bash
-$ pre-commit install
-pre-commit installed at .git\hooks\pre-commit
-$ pre-commit install --hook-type pre-commit
-pre-commit installed at .git\hooks\pre-commit
-```
+This is due to the fact that every folder contains his own `setup.py` and `requirements.txt` files:
 
-This hook will run the configuration stored in `.pre-commit-config.yaml` file on the pre-commit event,if you want you can also run manually the pre-commit hooks with:
+- `setup.py` is needed to make the local virtual environment aware of all these modules, check `requirements-dev.txt`.
+- each `requirements.txt` is used by `setup.py` for the `install_requires` argument but also as generic file that any IaC tool to recognize the needed dependencies in the AWS Lambda Runtime.
+- all the python code reside into an additional subfolder (e.g. `../micro_aws/micro_aws`), in this way the AWS Lambda runtime and the local virtual environment created using the different `setup.py` will make the imports seamless between the 2 environments.
 
-```bash
-pre-commit run --all-files
-```
+This works with AWS SAM as shown in this repository but can be used in the same way using AWS CDK or the AWS Lambda TF Module (<https://registry.terraform.io/modules/terraform-aws-modules/lambda/aws/latest>)
 
-### Testing
+#### My consideration on why setuptools and not poetry
 
-The test configuration are set in the `setup.cfg` file
-
-```bash
-pytest
-```
-
-If you want to run it concurrently and generate the report in XML you can also use
-
-```bash
-pytest -n 8 -rAfv --log-level=WARNING --cov=. --cov-report=xml --show-capture=no
-```
-
-### Static type checks
-
-In order to run a type check on the codebase you can run the following command.Note that this command is not in the `.pre-commit-config.yaml` file
-
-```bash
-$ mypy .
-Success: no issues found in 42 source files
-```
+- With every `pyproject.toml` comes also a `poetry.lock` in every folder (AWS Lambda or AWS Lambda Layer)
+- [Provide ability to read another .toml file instead of pyproject.toml · Issue #4460 · python-poetry/poetry is not considered to work in a multi "module" (our lambdas/layers) env](https://github.com/python-poetry/poetry/issues/4460#issuecomment-909881665)
+- AWS SAM do not support it. (but AWS CDK and AWS Lamda TF module do)

@@ -22,7 +22,7 @@ repos:
     rev: 'v3.0.0-alpha.4'
     hooks:
       - id: prettier
-        name: prettier frontend
+        name: prettier json and yaml
         args: ['--config', '.prettierrc.json']
         types_or: [json, yaml]
   # Python
@@ -41,7 +41,7 @@ repos:
         args: [--settings-path, setup.cfg, .]
         types: [python]
   - repo: https://github.com/psf/black
-    rev: 23.9.0
+    rev: 23.9.1
     hooks:
       - id: black
         args: [--config, pyproject.toml, .]
@@ -52,12 +52,3 @@ repos:
       - id: flake8
         args: [--config, setup.cfg, .]
         types: [python]
-  - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.5
-    hooks:
-      - id: codespell
-        name: codespell
-        description: Checks for common misspellings in text files.
-        entry: codespell
-        language: python
-        types: [text]

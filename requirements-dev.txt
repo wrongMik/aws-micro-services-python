@@ -1,11 +1,12 @@
 -e .
--e ./src/fast_api
--e ./src/micro_core
--e ./src/powertools_hello_world
--e ./src/sqs_batch_processing
+-e ./src/libraries/micro_aws
+-e ./src/libraries/micro_core
+-e ./src/services/fast_api_users
+-e ./src/services/powertools_hello_world
+-e ./src/services/sqs_batch_processing
 -r ./tests/requirements.txt
 autoflake==2.2.1
-black==23.9.0
+black==23.9.1
 flake8==6.1.0
 isort==5.12.0
 mypy==1.5.1

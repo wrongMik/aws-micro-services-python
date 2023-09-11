@@ -18,7 +18,7 @@ help:
 	@echo "python-win" - install python version with pyenv, activate virtualenv with virtualenvwrapper-win, install dependencies (including dev), install pre-commit hooks
 	@echo "python-clean" - Remove or delete all the python files used for build or cache
 	@echo "python-format" - run configured formatter
-	@echo "python-lint" - run flake8 and mypy
+	@echo "python-lint" - run linters
 	@echo "python-tests" - run the tests with pytest
 	@echo "python-ci" - run python-format, python-lint and python-tests
 
@@ -50,12 +50,12 @@ virtualenvwrapper-win-activate:
 	mkvirtualenv -p$(python-version) $(project-name)
 	%USERPROFILE%/Envs/$(project-name)/Scripts/activate.bat
 
-install-requirements-dev:
+python-install:
 	pip install -r requirements-dev.txt
 
-python: pyenv-install-python pip-install-base pyenv-virtual-env-activate install-requirements-dev pre-commit-install
+python: pyenv-install-python pip-install-base pyenv-virtual-env-activate python-install pre-commit-install
 
-python-win: pyenv-install-python pip-install-base virtualenvwrapper-win-activate install-requirements-dev pre-commit-install
+python-win: pyenv-install-python pip-install-base virtualenvwrapper-win-activate python-install pre-commit-install
 
 clean-build:
 	rm -fr **/build/
@@ -82,9 +82,21 @@ python-format:
 
 python-lint:
 	flake8 --config setup.cfg .
-	mypy .
+	mypy --config setup.cfg .
 
 python-tests:
 	pytest --color=yes -n 8 -rAfv --log-level=WARNING --cov=. --cov-report=xml --show-capture=no
+	coverage report -m
 
 python-ci: python-format python-lint python-tests
+
+build:
+	cd infra && sam build
+
+deploy:
+	cd infra && sam deploy
+
+validate:
+	cd infra && sam validate
+
+build-deploy: build deploy

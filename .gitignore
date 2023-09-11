@@ -181,10 +181,8 @@ Thumbs.db
 *.mov
 *.wmv
 
-# VisualStudioCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-.history
+# MS Visual Studio Code
+*.vscode
+
+# SAM
+.aws-sam/

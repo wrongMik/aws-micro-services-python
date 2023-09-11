@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Shared Infra
+
+Resources:
+  MicroAwsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      # TODO - add encryption, policy, versioning
+      BucketName: !Sub micro-aws-${AWS::AccountId}-${AWS::Region}
+
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      # TODO - add encryption, policy, point in time recovery, backup
+      TableName: users-table
+      KeySchema:
+        - AttributeName: user_id
+          KeyType: HASH
+      AttributeDefinitions:
+        - AttributeName: user_id
+          AttributeType: S
+      BillingMode: PAY_PER_REQUEST
+
+  MicroAwsSQS:
+    Type: AWS::SQS::Queue
+    Properties:
+      # TODO - Add encryption and policy
+      QueueName: micro-aws-processor
+      VisibilityTimeout: 60
+
+Outputs:
+  MicroAwsBucket:
+    Description: The S3 bucket used to store the uploaded files to parse
+    Value: !Ref MicroAwsBucket
+
+  UsersTable:
+    Description: The DynamoDB Table where the users informations are stored
+    Value: !Ref UsersTable
+
+  MicroAwsSQSUrl:
+    Description: The URL of SQS queue responsible for the processing of the uploaded files
+    Value: !Ref MicroAwsSQS
+
+  MicroAwsSQSArn:
+    Description: The ARN of SQS queue used microservices aws
+    Value: !GetAtt MicroAwsSQS.Arn

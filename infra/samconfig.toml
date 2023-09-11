@@ -4,7 +4,7 @@ version = 0.1
 
 [default]
 [default.global.parameters]
-stack_name = "sam-app"
+stack_name = "AwsMicroServicePython"
 
 [default.build.parameters]
 cached = true
@@ -14,9 +14,13 @@ parallel = true
 lint = true
 
 [default.deploy.parameters]
-capabilities = "CAPABILITY_IAM"
+capabilities = "CAPABILITY_AUTO_EXPAND CAPABILITY_IAM"
 confirm_changeset = true
 resolve_s3 = true
+s3_prefix = "aws-micro-services-python"
+region = "eu-central-1"
+image_repositories = []
+tags = "application=aws-micro-services-python environment=dev"
 
 [default.package.parameters]
 resolve_s3 = true
