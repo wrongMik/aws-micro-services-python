@@ -1,4 +1,4 @@
-httpx==0.24.1
+httpx==0.25.0
 moto[all]==4.2.2
 pytest==7.4.2
 pytest-cov==4.1.0
