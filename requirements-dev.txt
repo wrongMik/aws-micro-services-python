@@ -1,7 +1,7 @@
 -e .
 -e ./src/libraries/micro_aws
 -e ./src/libraries/micro_core
--e ./src/services/fast_api
+-e ./src/services/fast_api_users
 -e ./src/services/powertools_hello_world
 -e ./src/services/sqs_batch_processing
 -r ./tests/requirements.txt

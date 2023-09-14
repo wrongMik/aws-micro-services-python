@@ -3,10 +3,9 @@ from functools import lru_cache
 
 from fastapi import Depends
 from boto3.resources.base import ServiceResource
+from fast_api_users.dependencies.aws_services import boto3_dynamodb_resource
 
 from micro_aws.dynamodb_table import DynamoDBTable
-
-from fast_api.dependencies.aws_services import boto3_dynamodb_resource
 
 
 @lru_cache

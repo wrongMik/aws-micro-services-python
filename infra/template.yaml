@@ -75,8 +75,8 @@ Resources:
       Runtime: python3.11
       MemorySize: 256
       Timeout: 30
-      CodeUri: ../src/services/fast_api
-      Handler: fast_api.app.handler
+      CodeUri: ../src/services/fast_api_users
+      Handler: fast_api_users.app.handler
       Layers:
         - !GetAtt Layers.Outputs.MicroAws
         - !GetAtt Layers.Outputs.MicroCore

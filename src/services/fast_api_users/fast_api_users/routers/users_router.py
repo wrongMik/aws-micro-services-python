@@ -5,13 +5,12 @@ from typing import Union, Optional
 
 from fastapi import Query, Depends, APIRouter, status
 from fastapi.responses import JSONResponse
+from fast_api_users.dependencies.users import users_table
+from fast_api_users.models.users_model import User, CreateUser, UserIterator, UserIDsIterator
+from fast_api_users.models.message_model import Message
 
 from micro_core.utils import pick_keys
 from micro_aws.dynamodb_table import DynamoDBTable
-
-from fast_api.dependencies.users import users_table
-from fast_api.models.users_model import User, CreateUser, UserIterator, UserIDsIterator
-from fast_api.models.message_model import Message
 
 LOGGER = logging.getLogger()
 

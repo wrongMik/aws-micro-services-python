@@ -4,19 +4,20 @@ from uuid import uuid4
 import uvicorn
 from mangum import Mangum
 from fastapi import FastAPI, HTTPException, status
+from fast_api_users.routers import users_router
+from fast_api_users.models.message_model import Message, MessageWithUUID
+from fast_api_users.handlers.exception_handler import exception_handler
+from fast_api_users.middlewares.logging_middleware import LoggingMiddleware
+from fast_api_users.handlers.http_exception_handler import http_exception_handler
+from fast_api_users.middlewares.correlation_id_middleware import CorrelationIdMiddleware
 
 from micro_core.logging_config import configure_logging
-
-from fast_api.routers import users_router
-from fast_api.models.message_model import Message, MessageWithUUID
-from fast_api.handlers.exception_handler import exception_handler
-from fast_api.middlewares.logging_middleware import LoggingMiddleware
-from fast_api.handlers.http_exception_handler import http_exception_handler
-from fast_api.middlewares.correlation_id_middleware import CorrelationIdMiddleware
 
 app = FastAPI(
     title="fast-api-users",
     description="Fast API - Users Service",
+    # openapi_url="/users/openapi.json",
+    # docs_url="/users/docs",
     responses={
         status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "Internal Server Error", "model": MessageWithUUID},
         status.HTTP_400_BAD_REQUEST: {"description": "Bad request syntax or unsupported method", "model": Message},
@@ -29,7 +30,7 @@ app = FastAPI(
 ###############################################################################
 
 configure_logging(
-    service="fast-api",
+    service="fast-api-users",
     instance=str(uuid4()),
     level=os.getenv("LOG_LEVEL", "DEBUG"),
 )

@@ -4,13 +4,12 @@ from typing import Any, TypeVar, Generator
 import boto3
 import pytest
 from moto import mock_dynamodb
+from fast_api_users.app import app
 from boto3.resources.base import ServiceResource
 from starlette.testclient import TestClient
+from fast_api_users.dependencies import users, aws_services
 
 from micro_aws.dynamodb_table import DynamoDBTable
-
-from fast_api.app import app
-from fast_api.dependencies import users, aws_services
 
 T = TypeVar("T")
 

@@ -1,10 +1,10 @@
 from setuptools import setup, find_packages
 
 SETUP_OPTIONS = dict(
-    name="fast-api",
+    name="fast-api-users",
     version="0.1.0",
     author="Michele Ugolini",
-    description="Fast API - Running in AWS Lambda",
+    description="Fast API Users Service - Running in AWS Lambda",
     packages=find_packages(exclude=["tests"]),
     classifiers=[
         "Programming Language :: Python :: 3.11",

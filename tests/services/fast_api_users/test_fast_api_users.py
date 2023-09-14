@@ -3,11 +3,10 @@ from datetime import datetime
 
 import pytest
 from starlette.testclient import TestClient
+from fast_api_users.models.users_model import User
 
 from micro_core.utils import pick_keys
 from micro_aws.dynamodb_table import DynamoDBTable
-
-from fast_api.models.users_model import User
 
 
 @pytest.mark.usefixtures("override_dependencies")
