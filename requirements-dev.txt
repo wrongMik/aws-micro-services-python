@@ -6,7 +6,7 @@
 -e ./src/services/sqs_batch_processing
 -r ./tests/requirements.txt
 autoflake==2.2.1
-black==23.9.0
+black==23.9.1
 flake8==6.1.0
 isort==5.12.0
 mypy==1.5.1
