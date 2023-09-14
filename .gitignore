@@ -182,4 +182,7 @@ Thumbs.db
 *.wmv
 
 # MS Visual Studio Code
-.vscode
+*.vscode
+
+# SAM
+.aws-sam/

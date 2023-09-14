@@ -50,12 +50,12 @@ virtualenvwrapper-win-activate:
 	mkvirtualenv -p$(python-version) $(project-name)
 	%USERPROFILE%/Envs/$(project-name)/Scripts/activate.bat
 
-install-requirements-dev:
+python-install:
 	pip install -r requirements-dev.txt
 
-python: pyenv-install-python pip-install-base pyenv-virtual-env-activate install-requirements-dev pre-commit-install
+python: pyenv-install-python pip-install-base pyenv-virtual-env-activate python-install pre-commit-install
 
-python-win: pyenv-install-python pip-install-base virtualenvwrapper-win-activate install-requirements-dev pre-commit-install
+python-win: pyenv-install-python pip-install-base virtualenvwrapper-win-activate python-install pre-commit-install
 
 clean-build:
 	rm -fr **/build/
@@ -88,3 +88,14 @@ python-tests:
 	pytest --color=yes -n 8 -rAfv --log-level=WARNING --cov=. --cov-report=xml --show-capture=no
 
 python-ci: python-format python-lint python-tests
+
+build:
+	cd infra && sam build
+
+deploy:
+	cd infra && sam deploy
+
+validate:
+	cd infra && sam validate
+
+build-deploy: build deploy

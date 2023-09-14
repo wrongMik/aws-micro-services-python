@@ -15,8 +15,8 @@ from fast_api.handlers.http_exception_handler import http_exception_handler
 from fast_api.middlewares.correlation_id_middleware import CorrelationIdMiddleware
 
 app = FastAPI(
-    title="fast-api",
-    description="Fast API - Service",
+    title="fast-api-users",
+    description="Fast API - Users Service",
     responses={
         status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "Internal Server Error", "model": MessageWithUUID},
         status.HTTP_400_BAD_REQUEST: {"description": "Bad request syntax or unsupported method", "model": Message},
@@ -48,6 +48,13 @@ app.add_exception_handler(HTTPException, http_exception_handler)
 # Tip : middleware order : CorrelationIdMiddleware > LoggingMiddleware -> reverse order
 app.add_middleware(LoggingMiddleware)
 app.add_middleware(CorrelationIdMiddleware)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 ###############################################################################
 #   Routers configuration                                                     #

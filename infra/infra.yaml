@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: NavVis Phones Parser
 Transform: AWS::Serverless-2016-10-31
+Description: Shared Infra
 
 Resources:
   MicroAwsBucket:
@@ -9,7 +9,7 @@ Resources:
       # TODO - add encryption, policy, versioning
       BucketName: !Sub micro-aws-${AWS::AccountId}-${AWS::Region}
 
-  UserTable:
+  UsersTable:
     Type: AWS::DynamoDB::Table
     Properties:
       # TODO - add encryption, policy, point in time recovery, backup
@@ -34,9 +34,9 @@ Outputs:
     Description: The S3 bucket used to store the uploaded files to parse
     Value: !Ref MicroAwsBucket
 
-  UserTable:
+  UsersTable:
     Description: The DynamoDB Table where the users informations are stored
-    Value: !Ref UserTable
+    Value: !Ref UsersTable
 
   MicroAwsSQSUrl:
     Description: The URL of SQS queue responsible for the processing of the uploaded files

@@ -19,11 +19,28 @@ aws-micro-services-python
 ├── .markdownlint.json - Configuration file for the MarkDown, used by pre-commit
 ├── .pre-commit-config.yaml - pre-commit hooks config file
 ├── .prettierrc.json - Configuration file for the JSON and YAML, used by pre-commit
-├── Makefile -
+├── Makefile -Make file to ease the local setup, tests, deploy and run CI/CD commands
 ├── pyproject.toml - File to store the python configuration for black
 ├── README-DEVELOPMENT.md - Readme file to setup local env
 ├── README.md - This file
 ├── requirements-dev.txt - Python requirements to setup the local development environment
 ├── setup.cfg - The ini file, containing option defaults for setup.py commands
 └── setup.py - The setup command
+```
+
+### Deployment on AWS
+
+Be sure that SAM is installed on your machine, eventually check:
+
+- <https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/prerequisites.html>
+- <https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html>
+
+Be sure that a default profile is configured in `~/.aws` or change the `SAM` configuration to meet you environment.
+
+Navigate to the infra folder and run `sam build` and `sam deploy` command
+
+```bash
+cd infra
+sam build
+sam deploy
 ```

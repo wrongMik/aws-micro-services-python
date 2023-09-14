@@ -3,12 +3,83 @@ Transform: AWS::Serverless-2016-10-31
 Description: AWS Micro Services Python
 
 Resources:
-  MicroInfra:
+  Infra:
     Type: AWS::Serverless::Application
     Properties:
-      Location: ./micro-infra.yaml
+      Location: ./infra.yaml
 
   Layers:
     Type: AWS::Serverless::Application
     Properties:
       Location: ./layers.yaml
+
+  APIGateway:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      Name: micro-api-gateway
+      CorsConfiguration:
+        AllowMethods:
+          - DELETE
+          - GET
+          - HEAD
+          - OPTIONS
+          - PATCH
+          - POST
+          - PUT
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+          - X-Amz-Date
+          - X-Api-Key
+          - X-Amz-Security-Token
+        AllowOrigins:
+          - '*'
+
+  HealthService:
+    Type: AWS::Serverless::Function
+    Properties:
+      Events:
+        HttpApiEvent:
+          Type: HttpApi
+          Properties:
+            Path: /health
+            Method: GET
+            ApiId:
+              Ref: APIGateway
+      FunctionName: health-service
+      Runtime: python3.11
+      Handler: index.handler
+      InlineCode: |
+        import json
+
+
+        def handler(event, context):
+            return {
+                "statusCode": 200,
+                "body": json.dumps({"message": "healthy"}),
+                "headers": {"Content-Type": "application/json"},
+            }
+
+  FastAPIUsersService:
+    Type: AWS::Serverless::Function
+    Properties:
+      Events:
+        HttpApiEvent:
+          Type: HttpApi
+          Properties:
+            Path: /users/{proxy+}
+            Method: any
+            ApiId:
+              Ref: APIGateway
+      FunctionName: fast-api-users-service
+      Runtime: python3.11
+      MemorySize: 256
+      Timeout: 30
+      CodeUri: ../src/services/fast_api
+      Handler: fast_api.app.handler
+      Layers:
+        - !GetAtt Layers.Outputs.MicroAws
+        - !GetAtt Layers.Outputs.MicroCore
+      Environment:
+        Variables:
+          TABLE_NAME: !GetAtt Infra.Outputs.UsersTable
